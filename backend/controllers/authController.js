@@ -68,5 +68,12 @@ exports.logout = (req, res, next) => {
     })
 }
 
+exports.userProfile = async (req, res, next) => {
 
+    const user = await User.findById(req.user.id).select('-password');
 
+    res.status(200).json({
+        success: true,
+        user
+    })
+}
