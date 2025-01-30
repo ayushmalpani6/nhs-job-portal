@@ -2,7 +2,6 @@ const User = require('../models/userModel');
 const ErrorResponse = require('../utils/errorResponse');
 
 exports.allUsers = async (req, res, next) => {
-    //enable pagination
     const pageSize = 10;
     const page = Number(req.query.pageNumber) || 1;
     const count = await User.find({}).estimatedDocumentCount();
@@ -60,6 +59,36 @@ exports.deleteUser = async (req, res, next) => {
         res.status(200).json({
             success: true,
             message: "user deleted"
+        })
+        next();
+
+    } catch (error) {
+        return next(error);
+    }
+}
+
+exports.createUserJobsHistory = async (req, res, next) => {
+    const { title, description, salary, location } = req.body;
+
+    try {
+        const currentUser = await User.findOne({ _id: req.user._id });
+        if (!currentUser) {
+            return next(new ErrorResponse("You must log In", 401));
+        } else {
+            const addJobHistory = {
+                title,
+                description,
+                salary,
+                location,
+                user: req.user._id
+            }
+            currentUser.jobsHistory.push(addJobHistory);
+            await currentUser.save();
+        }
+
+        res.status(200).json({
+            success: true,
+            currentUser
         })
         next();
 

@@ -28,5 +28,26 @@ exports.allJobsType = async (req, res, next) => {
     }
 }
 
+exports.updateJobType = async (req, res, next) => {
+    try {
+        const jobT = await JobType.findByIdAndUpdate(req.params.type_id, req.body, { new: true });
+        res.status(200).json({
+            success: true,
+            jobT
+        })
+    } catch (error) {
+        next(error);
+    }
+}
 
-
+exports.deleteJobType = async (req, res, next) => {
+    try {
+        const jobT = await JobType.findByIdAndRemove(req.params.type_id);
+        res.status(200).json({
+            success: true,
+            message: "Job type deleted"
+        })
+    } catch (error) {
+        next(new ErrorResponse("server error", 500));
+    }
+}

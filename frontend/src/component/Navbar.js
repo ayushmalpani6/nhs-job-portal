@@ -117,7 +117,7 @@ function Navbar() {
                             textDecoration: 'none',
                         }}
                     >
-                        JOB PORTAL
+                        NHS Counseling
                     </Typography>
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         {/* menu desktop */}
