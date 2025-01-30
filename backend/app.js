@@ -11,16 +11,15 @@ var cors = require('cors');
 
 // import routes
 const authRoutes = require('./routes/authroutes');
-const userRoutes = require('/routes/userroutes');
+const userRoutes = require('./routes/userroutes');
+const jobTypeRoute = require('./routes/jobtyperoutes');
+const jobRoute = require('./routes/jobsroutes');
 
 const cookieParser = require("cookie-parser");
 const errorHandler = require("./middleware/error");
 
 //database connection
-mongoose.connect(process.env.DATABASE, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+mongoose.connect(process.env.DATABASE, {})
     .then(() => console.log("DB connected"))
     .catch((err) => console.log(err));
 
@@ -38,8 +37,10 @@ app.use(cors());
 
 app.use('/api', authRoutes);
 app.use('/api', userRoutes);
+app.use('/api', jobTypeRoute);
+app.use('/api', jobRoute);
 
-// error middleware
+
 app.use(errorHandler);
 
 //port

@@ -1,30 +1,21 @@
-const ErrorResponse = require('../utils/errorResponse');
-const jwt = require('jsonwebtoken');
-const User = require("../models/userModel");
+const express = require('express');
+const router = express.Router();
+const { allUsers, singleUser, editUser, deleteUser } = require('../controllers/userController');
+const { isAuthenticated, isAdmin } = require('../middleware/auth');
 
-// check is user is authenticated
-exports.isAuthenticated = async (req, res, next) => {
-    const { token } = req.cookies;
-    // Make sure token exists
-    if (!token) {
-        return next(new ErrorResponse('Not authorized to access this route', 401));
-    }
 
-    try {
-        // Verify token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = await User.findById(decoded.id);
-        next();
+//user routes
 
-    } catch (error) {
-        return next(new ErrorResponse('Not authorized to access this route', 401));
-    }
-}
+// /api/allusers
+router.get('/allusers', isAuthenticated, isAdmin, allUsers);
+// /api/user/id
+router.get('/user/:id', isAuthenticated, singleUser);
+// /api/user/edit/id
+router.put('/user/edit/:id', isAuthenticated, editUser);
+// /api/admin/user/delete/id
+router.delete('/admin/user/delete/:id', isAuthenticated, isAdmin, deleteUser);
 
-//middleware for admin
-exports.isAdmin = (req, res, next) => {
-    if (req.user.role === 0) {
-        return next(new ErrorResponse('Access denied, you must an admin', 401));
-    }
-    next();
-}
+
+
+
+module.exports = router;

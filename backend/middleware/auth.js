@@ -1,74 +1,30 @@
-const User = require('../models/userModel');
 const ErrorResponse = require('../utils/errorResponse');
+const jwt = require('jsonwebtoken');
+const User = require("../models/userModel");
 
-//load all users
-exports.allUsers = async (req, res, next) => {
-    //enable pagination
-    const pageSize = 10;
-    const page = Number(req.query.pageNumber) || 1;
-    const count = await User.find({}).estimatedDocumentCount();
+// check is user is authenticated
+exports.isAuthenticated = async (req, res, next) => {
+    const { token } = req.cookies;
+    // Make sure token exists
+    if (!token) {
+        return next(new ErrorResponse('Not authorized to access this route', 401));
+    }
 
     try {
-        const users = await User.find().sort({ createdAt: -1 }).select('-password')
-            .skip(pageSize * (page - 1))
-            .limit(pageSize)
-
-        res.status(200).json({
-            success: true,
-            users,
-            page,
-            pages: Math.ceil(count / pageSize),
-            count
-
-        })
+        // Verify token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = await User.findById(decoded.id);
         next();
+
     } catch (error) {
-        return next(error);
+        return next(new ErrorResponse('Not authorized to access this route', 401));
     }
 }
 
-//show single user
-exports.singleUser = async (req, res, next) => {
-    try {
-        const user = await User.findById(req.params.id);
-        res.status(200).json({
-            success: true,
-            user
-        })
-        next();
-
-    } catch (error) {
-        return next(error);
+//middleware for admin
+exports.isAdmin = (req, res, next) => {
+    if (req.user.role === 0) {
+        return next(new ErrorResponse('Access denied, you must an admin', 401));
     }
-}
-
-
-//edit user
-exports.editUser = async (req, res, next) => {
-    try {
-        const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        res.status(200).json({
-            success: true,
-            user
-        })
-        next();
-
-    } catch (error) {
-        return next(error);
-    }
-}
-
-//delete user
-exports.deleteUser = async (req, res, next) => {
-    try {
-        const user = await User.findByIdAndRemove(req.params.id);
-        res.status(200).json({
-            success: true,
-            message: "user deleted"
-        })
-        next();
-
-    } catch (error) {
-        return next(error);
-    }
+    next();
 }

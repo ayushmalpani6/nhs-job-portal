@@ -1,7 +1,6 @@
 const User = require('../models/userModel');
 const ErrorResponse = require('../utils/errorResponse');
 
-//load all users
 exports.allUsers = async (req, res, next) => {
     //enable pagination
     const pageSize = 10;
@@ -27,7 +26,6 @@ exports.allUsers = async (req, res, next) => {
     }
 }
 
-//show single user
 exports.singleUser = async (req, res, next) => {
     try {
         const user = await User.findById(req.params.id);
@@ -42,8 +40,6 @@ exports.singleUser = async (req, res, next) => {
     }
 }
 
-
-//edit user
 exports.editUser = async (req, res, next) => {
     try {
         const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -58,7 +54,6 @@ exports.editUser = async (req, res, next) => {
     }
 }
 
-//delete user
 exports.deleteUser = async (req, res, next) => {
     try {
         const user = await User.findByIdAndRemove(req.params.id);
